@@ -11,6 +11,7 @@ class ChatConversation extends Model
     protected $fillable = [
         'session_id',
         'title',
+        'user_id',
     ];
 
     protected static function boot()
@@ -38,6 +39,14 @@ class ChatConversation extends Model
     public function latestMessage()
     {
         return $this->hasOne(ChatMessage::class, 'conversation_id')->latestOfMany();
+    }
+
+    /**
+     * Get the user that owns the conversation.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     /**

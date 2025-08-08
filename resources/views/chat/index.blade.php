@@ -67,8 +67,30 @@
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
+                
+                <!-- User Info -->
+                <div class="flex items-center mb-3 p-2 bg-gray-50 rounded-lg">
+                    @if(auth()->user()->avatar)
+                        <img src="{{ auth()->user()->avatar }}" alt="Profile" class="w-8 h-8 rounded-full mr-3">
+                    @else
+                        <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-user text-white text-sm"></i>
+                        </div>
+                    @endif
+                    <div class="flex-1">
+                        <div class="text-sm font-medium text-gray-800">{{ auth()->user()->name }}</div>
+                        <div class="text-xs text-gray-500">{{ auth()->user()->email }}</div>
+                    </div>
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                        @csrf
+                        <button type="submit" class="text-gray-500 hover:text-red-500 p-1 rounded transition-colors" title="Logout">
+                            <i class="fas fa-sign-out-alt text-sm"></i>
+                        </button>
+                    </form>
+                </div>
+                
                 <div class="text-sm text-gray-600">
-                    tsabitah
+                    Start a new conversation or select an existing one from the list below.
                 </div>
             </div>
 

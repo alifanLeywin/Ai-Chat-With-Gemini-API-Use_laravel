@@ -7,6 +7,7 @@ use App\Models\ChatMessage;
 use App\Services\GeminiService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -25,7 +26,8 @@ class ChatController extends Controller
      */
     public function index()
     {
-        $conversations = ChatConversation::with('latestMessage')
+        $conversations = ChatConversation::where('user_id', auth()->id())
+            ->with('latestMessage')
             ->orderBy('updated_at', 'desc')
             ->limit(10)
             ->get();
@@ -38,7 +40,9 @@ class ChatController extends Controller
      */
     public function newConversation(): JsonResponse
     {
-        $conversation = ChatConversation::create();
+        $conversation = ChatConversation::create([
+            'user_id' => auth()->id()
+        ]);
 
         return response()->json([
             'success' => true,
@@ -56,6 +60,7 @@ class ChatController extends Controller
     public function getConversation(Request $request, $sessionId): JsonResponse
     {
         $conversation = ChatConversation::where('session_id', $sessionId)
+            ->where('user_id', auth()->id())
             ->with(['messages' => function($query) {
                 $query->orderBy('created_at', 'asc');
             }])
@@ -112,7 +117,8 @@ class ChatController extends Controller
 
             // Find or create conversation
             $conversation = ChatConversation::firstOrCreate(
-                ['session_id' => $sessionId]
+                ['session_id' => $sessionId],
+                ['user_id' => auth()->id()]
             );
 
             // Save user message
@@ -185,7 +191,8 @@ class ChatController extends Controller
      */
     public function getConversations(): JsonResponse
     {
-        $conversations = ChatConversation::with('latestMessage')
+        $conversations = ChatConversation::where('user_id', auth()->id())
+            ->with('latestMessage')
             ->orderBy('updated_at', 'desc')
             ->limit(20)
             ->get()
@@ -212,7 +219,9 @@ class ChatController extends Controller
      */
     public function deleteConversation($sessionId): JsonResponse
     {
-        $conversation = ChatConversation::where('session_id', $sessionId)->first();
+        $conversation = ChatConversation::where('session_id', $sessionId)
+                                      ->where('user_id', auth()->id())
+                                      ->first();
 
         if (!$conversation) {
             return response()->json([
